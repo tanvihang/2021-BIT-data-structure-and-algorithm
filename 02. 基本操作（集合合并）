@@ -12,3 +12,180 @@
 
 注意：提交代码的时候，仅需提交你编写的那三个基本操作函数即可。
 */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#define LIST_MAX_SIZE  100	
+#define OK 1
+#define ERROR 0
+#define incresize 10;
+
+typedef int ElemType;    
+typedef int Status;	//remember here int is same as status return type		
+
+typedef struct {
+
+   	ElemType * elem;  //list for storing address	
+  	int  length;      //length of the list  
+  	int  listsize;	  //size of the list O(what)
+} SqList;
+
+//reference no need to check its null  (&)
+Status InitList( SqList & ); //making a new list space allocation
+Status ListInsert( SqList &, int, ElemType );	//insert at (LA,place,value)
+Status GetElem( SqList, int, ElemType & );  //get from LB
+int	   ListLength( SqList );	//calc length of lb?
+Status ListTraverse( SqList &, void (*)( ElemType ) );
+void   ListUnion( SqList &, SqList );
+void   out( ElemType );
+int    equal(ElemType, ElemType ); 
+Status LocateElem(SqList, ElemType, Status (*)(ElemType,ElemType));
+
+
+Status InitList( SqList & L ) 	
+{
+	L.elem = (ElemType *)malloc(LIST_MAX_SIZE*sizeof(ElemType));
+
+  	L.length 	= 0;   	//no data inside first	//MIGHT CHANGE THE VALUE LATER
+  	L.listsize 	= LIST_MAX_SIZE;  //max data
+   	return OK;
+}
+
+Status ListTraverse( SqList &L, void (*visit)( ElemType ) )
+{	
+	int i, L_len = ListLength( L );
+	ElemType e;
+	
+	for ( i = 1;  i <= L_len; i++ )  {
+    	GetElem(L, i, e);
+    	(*visit)( e );
+	}
+  	return OK;
+}
+
+int equal(ElemType x, ElemType y)
+{	return x==y;
+}
+
+Status LocateElem( SqList L, ElemType e,Status (*compare)(ElemType,ElemType) )
+{	
+	int i = 1;
+	ElemType * p;
+    while ( i<=L.length )  //
+	   	if  ( (*compare)(e,L.elem[i-1]) ) break;
+		else  i++;
+    if ( i <= L.length )  return i; 
+    else return 0;		
+}
+
+void out( ElemType e )
+{	printf("%d,", e);
+}
+
+void ListUnion( SqList &La,  SqList Lb ) 
+{	int La_len, Lb_len, i;
+	ElemType e;
+ 
+	La_len = ListLength( La );      
+	Lb_len = ListLength( Lb );
+	for ( i = 1;  i <= Lb_len;  i++ )  {
+    	GetElem(Lb, i, e);  
+    	if ( !LocateElem( La, e, equal ) ) 
+        	ListInsert ( La, ++La_len, e );	
+	}
+}
+
+int main()
+{	SqList La, Lb; //struct La Lb
+	int n, i;
+	ElemType e; //same as int e;
+	
+	InitList( La ); //initialize
+	InitList( Lb ); //initialize
+	
+	scanf("%d", &n);	
+	
+	for ( i=0; i<n; i++ )
+	{	scanf("%d", &e);
+		ListInsert( La, i+1, e ); //putting value into struct list (Sqlist)
+	}
+	
+	scanf("%d", &n);	
+	for ( i=0; i<n; i++ )
+	{	scanf("%d", &e);
+		ListInsert( Lb, i+1, e );  //putting value into struct list (Sqlist)
+	}
+	
+	printf("Output La:");
+	ListTraverse( La, out );
+	
+	printf("\nOutput Lb:");
+	ListTraverse( Lb, out );
+	
+	ListUnion( La, Lb );
+	printf("\nResult La:");
+	
+	ListTraverse( La, out );
+	printf("\n");
+	return OK;
+}
+
+
+//Status ListInsert( SqList &L, int i, ElemType e )
+//{
+//  	if(i<1||i>L.length+1)
+//  		return ERROR;
+//  		
+//  	if(L.length>=L.listsize)
+//  		return ERROR;
+//  		
+//  	for(int j=L.length /*move from last*/ ;j>=i;j--)  //move back
+//  	{
+//  		L.elem[j]=L.elem[j-1];
+//	}
+//	
+//	L.elem[i-1]=e;
+//	L.length++;
+//	return OK;
+//	
+//}
+//
+//Status GetElem(SqList L, int i, ElemType &e)
+//{
+//
+//	if(i<1||i>L.length)
+//	{
+//		return ERROR;
+//	}
+//	
+//	e=L.elem[i-1];
+//	
+//	return OK;
+//
+//}
+//
+//int ListLength(SqList L)
+//{	
+//
+//	return L.length;
+//
+//}
+//
+//Status ListDelete(SqList &L, int i,ElemType &e) //(list,place, e says the value have been deleted)
+//{
+//	if(i<1||i>L.length)
+//		return ERROR;
+//		
+//	p=&(L.elem[i-1]); //the one to delete
+//	e=*p; //e=value of delete value
+//	
+//	q=L.elem[L.length-1]; //last number
+//	for(++p;p<=q;++p)
+//		*(p-1)=*p;
+//	
+//	--L.length;
+//	return OK;
+//}
+
+/* PRESET CODE END - NEVER TOUCH CODE ABOVE */
