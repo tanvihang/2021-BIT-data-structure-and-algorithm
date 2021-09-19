@@ -7,3 +7,103 @@
 
 要求： 仅编写将分数转换为小数的函数 change( int n, int m, NODE * head ) 。
 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct node
+{   int         data;
+    struct node * next;
+} NODE;
+
+void output( NODE *, int );
+void change( int, int, NODE * );
+
+void change(int n, int m, NODE *HEAD )
+{
+    int quotient[10010]={0}, remainder[10010]={0};
+    int p1 = 0, p2 = 0;
+    int flag = 0;
+    int num = n * 10;
+
+    for (int i = 0; ; i++) //using break to stop loop
+    {
+    	quotient[i] = num / m;
+    	remainder[i] = num % m;
+
+    	for (int j = 0; j < i; j++)
+    	{	
+    		if(quotient[j] == quotient[i] && remainder[j] == remainder[i])
+    		{
+    			p1 = j;
+    			p2 = i;
+
+    			flag = 1;
+    			break;
+    		}
+    	}
+
+    	num = remainder[i] * 10;
+
+    	if(!num)
+    	{
+    		p1 = i + 1;
+    		break;
+    	}
+    	if(flag == 1)
+    	{
+    		break;
+    	}
+    }
+
+
+    NODE *r = HEAD;
+    for (int i = 0; i < p1; i++)
+    {
+    	NODE *q = (NODE*)malloc(sizeof(NODE));
+    	q->data = quotient[i];
+    	q->next = NULL;
+    	r->next = q;
+    	r = q;
+    }
+
+    if (flag == 1)
+    {
+    	NODE *contmp = r; //r is following of the non loop place works like head, and save it inside contmp
+    	for (int i = p1; i < p2; i++)
+    	{
+    		NODE *q = (NODE*)malloc(sizeof(NODE));
+    		q->data = quotient[i];
+    		q->next = NULL;
+    		r->next = q;
+    		r = q;
+    	}
+    	r->next = contmp->next; 
+    }
+}
+
+void output( NODE * head, int kk )
+{   int k=0;
+
+	printf("0.");
+	while ( head->next != NULL && k<kk )
+	{   printf("%d", head->next->data );
+		head = head->next;
+		k ++;
+	}
+	printf("\n");
+}
+
+int main()
+{   int n, m,k;
+	NODE * head;
+
+	scanf("%d%d%d", &n, &m, &k);
+	head = (NODE *)malloc( sizeof(NODE) );
+	head->next = NULL;
+	head->data = -1;
+	change( n, m, head );
+	output( head,k );
+	return 0;
+}
