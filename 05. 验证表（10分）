@@ -8,3 +8,70 @@
 
 如果LIST2为空表，则输出the LIST2 is NULL.
 */
+
+#include<stdio.h>  
+#include<stdlib.h>   
+#include<string.h>  
+struct student{  
+    int id;  
+    char name[25];  
+};  
+  
+int main()  
+{  
+    int m,n,i,j;  
+    int flag=0,flag1=0;  
+    scanf("%d",&m);  
+    struct student list1[m];  
+    for(i=0;i<m;i++)  
+    {  
+        memset(list1[i].name,0,sizeof(list1[i].name));  
+    }  
+    for(i=0;i<m;i++)  
+    {  
+        scanf("%d %s",&list1[i].id,&list1[i].name);  
+    }  
+
+    scanf("%d",&n);  
+    struct student list2[n+1];  
+    for(i=0;i<=n;i++)  
+    {  
+        memset(list2[i].name,0,sizeof(list2[i].name));  
+    }  
+    for(i=0;i<n;i++)  
+    {  
+        scanf("%d %s",&list2[i].id,&list2[i].name);  
+    }  
+
+    for(i=0;i<n;i++)  
+    {  
+        flag1=0;  
+        for(j=0;j<m;j++)  
+        {  
+            if(list2[i].id==list1[j].id)  
+            {  
+                if(strcmp(list2[i].name,list1[j].name)==0)  
+                {  
+                    flag1++;    
+                    break;  
+                }  
+            }  
+        }  
+
+        if(flag1==0)  
+        {  
+            printf("%d %s is not in LIST1.\n",list2[i].id,list2[i].name);  
+            flag++;  
+        }  
+    }  
+
+    if(flag==0&&n!=0)  
+    {  
+        printf("the records of LIST2 are all in the LIST1.\n");  
+    }  
+    if(n==0)  
+    {  
+        printf("the LIST2 is NULL.\n");  
+    }  
+      
+}  
