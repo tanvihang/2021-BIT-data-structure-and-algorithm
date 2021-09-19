@@ -1,0 +1,110 @@
+/*
+我们不妨将经典的约瑟夫问题进行扩展，变成一个双向的约瑟夫问题。
+
+　　已知 n 个人（不妨分别以编号 1，2，3，...，n 代表 ）围坐在一张圆桌周围，首先从编号为 k 的人从 1 开始顺时针报数，1, 2, 3, ...，记下顺时针数到 m 的那个人，同时从编号为 k 的人开始逆时针报数，1, 2, 3, ...，数到 m 后，两个人同时出列。然后从出列的下一个人又从 1 开始继续进行双向报数，数到 m 的那两个人同时出列，...；。依此重复下去，直到圆桌周围的人全部出列。直到圆桌周围只剩一个人为止。
+
+ 　　如果双向报数报到 m 时落在同一个人身上，那本次出列的只有一个人。
+
+　　例如：5,1,2。则总共5个人，从1开始顺时针报数，数到2，定位编号2；同时从1开始报数数到2，定位编号5；2和5同时出列。然后继续开始报数，顺时针报数3,4，定位到4；逆时针报数4,3，定位3；4和3同时出列。最后剩余的为编号1。输出为：2-5,4-3,1,。
+
+　　如果输入：6,2,3。则输出：4-6,2,1-3,5,。其中第2次只输出一个2，表示第二次双向报数时，恰好都落在编号2上，所以只有一个编号出列。
+*/
+
+#include "stdio.h"
+#include "stdlib.h"
+
+int n,m,k;
+
+typedef struct node{
+	int num;
+	struct node *next;
+	struct node *prev;
+}NODE,*PNODE;
+
+void create(PNODE &head)
+{
+	head = (PNODE)malloc(sizeof(NODE));
+	PNODE p,q;
+	//p=head;
+	q=head; 
+	
+	for(int i=1;i<=n;i++)
+	{
+		p=(PNODE)malloc(sizeof(NODE));  //newnode
+		p->num=i;
+		p->prev=q;
+		q->next=p;
+		q=p;
+	}
+	p->next=head;
+	head->prev=p;
+}
+
+void deleteNode(PNODE &ptr)
+{
+	ptr->prev->next=ptr->next;
+	ptr->next->prev=ptr->prev;
+}
+
+int main()
+{
+	int i; 
+    PNODE Head,Left,Right,right,left; 
+    scanf("%d,%d,%d",&n,&k,&m);  
+    if(!n||!k||!m) 
+    { 
+      printf("n,m,k must bigger than 0.\n"); 
+      return 0;   
+    } 
+    if(k>n) 
+    { 
+      printf("k should not bigger than n.\n"); 
+      return 0; 
+    }  
+	
+	create(Head); // ...,n-1,n,head,1,2,3,...
+	Right=Head->next;  
+	while(Right->num!=k)
+	{
+		Right=Right->next;
+	 } 
+	Left=Right;
+	
+	while(n)
+	{
+		right=Right;
+		left=Left;
+		for(i=1;i<m;i++)
+		{
+			right=right->next;
+			left=left->prev;
+			if(right==Head)
+				right=right->next;
+			if(left==Head)
+				left=left->prev;
+		}
+		
+		Right=right->next; //update pointer position
+		Left=left->prev;
+		if(Right==Head)
+			Right=Right->next;
+		if(Left==Head)
+			Left=Left->prev;
+			
+		if(right!=left)
+		{
+			n=n-2;
+			printf("%d-%d,",right->num,left->num);
+			deleteNode(right);
+			deleteNode(left);
+		}
+		else
+		{
+			n=n-1;
+			printf("%d,",right->num);
+			deleteNode(right);
+		}
+		
+	}
+	printf("\n");
+}
