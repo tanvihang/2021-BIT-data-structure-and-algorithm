@@ -38,3 +38,137 @@ Notes
 版权声明：本文为CSDN博主「Antineutrino」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
 原文链接：https://blog.csdn.net/Antineutrino/article/details/6763722
 */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node
+{
+    char data;
+    struct Node *pNext;
+}NODE, *PNODE;
+
+typedef struct Stack
+{
+    PNODE pTop;
+    PNODE pBottom;
+}STACK, *PSTACK;
+
+void init(PSTACK pStack)
+{
+    pStack->pTop = (PNODE)malloc(sizeof(NODE));
+    pStack->pBottom = pStack->pTop;
+    pStack->pTop->pNext = NULL;
+    return;
+}
+
+void push(PSTACK pStack, char val)
+{
+    PNODE pNew = (PNODE)malloc(sizeof(NODE));
+    pNew->data = val;
+    pNew->pNext = pStack->pTop;
+    pStack->pTop = pNew;
+    return;
+}
+
+int empty(PSTACK pStack)
+{
+    if (pStack->pTop == pStack->pBottom)
+    {
+        return 1;
+    }
+    else
+        return 0;
+}
+
+void pop(PSTACK pStack) {
+    pStack->pTop = pStack->pTop->pNext;
+    return;
+}
+
+int main(void)
+{
+    int n;
+    scanf("%d", &n);
+    while (n--) {
+        
+        STACK s1;
+        PSTACK p1=&s1;
+        init(p1);
+        push(p1, '#');
+        char ch,op,str[105];
+        
+        int InputOp, StackOp,i=0;
+
+        scanf("%s", &str);
+
+        while(1) {
+            ch = str[i];
+            if (ch > 64 && ch < 91 || ch>96 && ch < 123) {
+                printf("%c", ch);
+                i++;
+                continue;
+            }
+
+            else {
+                op = p1->pTop->data; //1st time is #, checking with the previous oper
+
+                switch (op) {
+                    case '#': {StackOp = 0; break; } //优先级
+                    case '(': {StackOp = 1; break; }
+                    case '^': {StackOp = 6; break; }
+                    case '*': {StackOp = 5; break; }
+                    case '/': {StackOp = 5; break; }
+                    case ')': {StackOp = 8; break; }
+                    case '+': {StackOp = 3; break; }
+                    case '-': {StackOp = 3; break; }
+                }
+                switch (ch) {
+                    case '#': {InputOp = 0; break; }
+                    case '(':{InputOp = 8; break; }
+                    case '^':{InputOp = 7; break; }
+                    case '*':{InputOp = 4; break; }
+                    case '/':{InputOp = 4; break; }
+                    case ')':{InputOp = 1; break; }
+                    case '+':{InputOp = 2; break; }
+                    case '-':{InputOp = 2; break; }
+                }
+                
+                if (InputOp > StackOp)  //若优先级比栈顶运算符的高，也将运算符压入（注意转换为前缀表达式时是优先级较高或相同，而这里则不包括相同的情况）；
+		{
+                    push(p1, ch);
+                    i++;
+                    continue;
+                }
+                if (InputOp < StackOp)  //若优先级比栈顶运算符的低，将栈顶的运算符弹出 
+		{
+                    pop(p1);
+                    printf("%c", op);
+                    continue;
+                }
+                if (InputOp == StackOp) //括弧
+		 {
+                    if (op == '(') {
+                        pop(p1);
+                        i++;
+                        continue;
+                    }
+                    else {
+                        pop(p1);
+                        if(op!='#')continue;
+                        else break;
+                    }
+                    
+                }
+                
+            }
+            
+        }
+        
+        printf("\n");
+        
+    }
+    
+    return 0;
+}
