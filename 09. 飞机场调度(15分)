@@ -1,0 +1,225 @@
+/*
+在本实验中，需要同学们利用队列实现一个飞机场调度模拟，根据不同的输入参数得到不同的模拟结果。程序运行开始，首先需要输入以下参数：
+
+机场跑道数，飞机降落占用跑道时间（整数）， 飞机起飞占用跑道时间（整数）
+
+整个模拟的时间以分钟为单位，从 0 开始，每分钟的开始需要输入：
+
+该分钟要求降落飞机数， 该分钟要求起飞飞机数
+
+机场调度原则是降落优先起飞，在此原则下按来的顺序排队；每驾飞机都有一个编号，要起飞飞机从 1 开始，要降落飞机从 5001 开始；每驾飞机需要等待的时间是从其提要求开始到分配跑道为止；每个跑道都有一个编号（从 1 开始），都可以用来降落和起飞，但同一时间只能被一架飞机占用，占用时间为该飞机降落（起飞）占用跑道时间。
+
+当输入的要求降落飞机数和要求起飞飞机数都小于 0 时，表示机场关闭，不再接受新的请求，但余下没有降落（起飞）的飞机需照常进行。
+
+模拟过程中需要随时输出以下数据：
+
+1. 当前时间 (%4d)
+
+2. 所有从占用变为空闲的跑道编号 （在输入降落、起飞飞机数前输出）
+
+3. 可以降落（起飞）飞机编号（％ 04d ）、跑道编号（％ 02d ） （在输入降落、起飞飞机数后输出）
+
+模拟结束后，程序需输出以下统计结果：
+
+1. 模拟时间（％ 4d ）
+
+2. 降落平均等待时间（％ 4.1f ）
+
+3. 起飞平均等待时间（％ 4.1f ）
+
+4. 每条跑道被占用时间（％ 4d ）
+
+5. 跑道平均被占用的百分比（％ 4.1f ， 平均占用时间× 100/ 模拟时间）
+*/
+
+#include "stdio.h"
+#include "string.h"
+#include "stdlib.h"
+
+typedef struct{
+	int freetime;
+	int totaltime;
+}RunwayType;
+
+RunwayType runway[105];
+
+typedef struct _airplane{
+	int airplaneID;
+	int time;
+	struct _airplane *next;
+}AirplaneType;
+
+AirplaneType airplane;
+
+//landing queue
+AirplaneType *landhead = NULL;
+AirplaneType *landtail = NULL;
+void createlandqueue()
+{
+	AirplaneType *p;
+	p=(AirplaneType *)malloc(sizeof(AirplaneType));
+	p->next=NULL;
+	p->airplaneID=-1;
+	p->time=-1;
+	landhead=p;
+	landtail=p;
+}
+
+void addlandqueue(int number,int time)
+{
+	AirplaneType *p;
+	p=(AirplaneType *)malloc(sizeof(AirplaneType));
+	p->next=NULL;
+	p->airplaneID=number;
+	p->time=time;
+	landtail->next=p;
+	landtail = landtail->next;
+}
+
+AirplaneType outlandqueue()
+{
+	AirplaneType *p;
+	p=landhead->next;
+	landhead->next=p->next;
+	if(landhead->next==NULL)
+		landtail=landhead;
+	return *p;
+}
+
+//depature
+AirplaneType *offhead = NULL;
+AirplaneType *offtail = NULL;
+void createoffqueue()
+{
+	AirplaneType *p;
+	p=(AirplaneType *)malloc(sizeof(AirplaneType));
+	p->next=NULL;
+	p->time=-1;
+	p->airplaneID=-1;
+	offhead=p;
+	offtail=p;
+}
+
+void addoffqueue(int number, int time)
+{
+	AirplaneType *p;
+	p=(AirplaneType *)malloc(sizeof(AirplaneType));
+	p->next=NULL;
+	p->time=time;
+	p->airplaneID=number;
+	offtail->next=p;
+	offtail=offtail->next;
+}
+
+AirplaneType outoffqueue()
+{
+	AirplaneType *p;
+	p= offhead->next;
+	offhead->next=p->next;
+	if(offhead->next==NULL)
+		offtail=offhead;
+	return *p;
+}
+
+int isempty(AirplaneType *p)
+{
+	if(p->next==NULL)
+		return 1;
+	else
+		return 0;
+}
+
+int main()
+{
+	int totalrunway, landcost, offcost;
+	int currenttime =0;
+	int landnumber, offnumber, finish=0;
+	int landstartnumber=5001, offstartnumber =1;
+	int allrunwayfree=1;
+	int landwait =0,offwait=0;
+	int land_number =0, off_number=0;
+	int runway_totaltime=0;
+	scanf("%d%d%d",&totalrunway,&landcost,&offcost);
+	for(int i=1;i<=totalrunway;i++)
+	{
+		runway[i].freetime=0;
+		runway[i].totaltime=0;
+	}
+	
+	createlandqueue();
+	createoffqueue();
+	printf("Current Time: %4d\n",currenttime++);
+	while(1)
+	{
+		if(finish != 1)
+		{
+			scanf("%d%d",&landnumber,&offnumber);
+			if(landnumber<0 && offnumber<0){
+				finish=1;
+			}
+		}
+		for(int i=0;i<landnumber;i++)
+		{
+			addlandqueue(landstartnumber++,currenttime);
+			land_number++;
+		}
+		for(int i=0;i<offnumber;i++)
+		{
+			addoffqueue(offstartnumber++, currenttime);
+			off_number++;
+		}
+		
+		for(int i=1;i<=totalrunway;i++)
+		{
+			if(runway[i].freetime==0)
+			{
+				if(!isempty(landhead))
+				{
+					airplane=outlandqueue();
+					runway[i].freetime=landcost;
+					printf("airplane %04d is ready to land on runway %02d\n",airplane.airplaneID,i);
+					landwait=landwait + currenttime - airplane.time;
+					runway[i].totaltime += landcost;
+				}
+				else if(!isempty(offhead))
+				{
+					airplane=outoffqueue();
+					runway[i].freetime=offcost;
+					printf("airplane %04d is ready to takeoff on runway %02d\n",airplane.airplaneID,i);
+					offwait=offwait+currenttime-airplane.time;
+					runway[i].totaltime +=offcost;
+				}
+			}
+		}
+		printf("Current Time: %4d\n",currenttime++);
+		allrunwayfree =1;
+		for(int i=1;i<=totalrunway;i++)
+		{
+			if(runway[i].freetime!=0)
+			{
+				if(!(--runway[i].freetime))
+					printf("runway %02d is free\n",i);
+				else
+					allrunwayfree=0;
+			}
+		}
+		if(finish && isempty(landhead)&&isempty(offhead)&&allrunwayfree)
+			break;
+	}
+	
+	printf("simulation finished\n");
+	printf("simulation time: %4d\n",--currenttime);
+	double land_average =(double)landwait/land_number;
+	printf("average waiting time of landing: %4.1f\n",land_average);
+	double off_average=(double)offwait/off_number;
+	printf("average waiting time of takeoff: %4.1f\n",off_average);
+	for(int i=1; i<=totalrunway;i++)
+	{
+		printf("runway %02d busy time: %4d\n",i,runway[i].totaltime);
+		runway_totaltime += runway[i].totaltime;
+	}
+	float pertime = ((float)runway_totaltime)/totalrunway*100/currenttime;
+	printf("runway average busy time percentage: %4.1f%%\n",pertime);
+	
+	return 0;
+}
