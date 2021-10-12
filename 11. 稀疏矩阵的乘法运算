@@ -1,0 +1,109 @@
+/*
+数据压缩是提高传输、存储效率一种技术。教材第5章介绍了两种简单的压缩存储方法。
+
+本实验要求实现两个稀疏矩阵相乘积的算法。其中稀疏矩阵非零元素数量小于100.
+
+输入：
+
+第1个稀疏矩阵的行数
+          列数
+          非零元个数(三个数都大于0)
+          三元组
+
+第2个稀疏矩阵的行数
+          列数
+          非零元个数(三个数都大于0)
+          三元组   
+
+以行为主序输入稀疏矩阵三元组表
+
+输出：
+
+       乘积矩阵的行数
+          列数
+          非零元个数(三个数都大于0)
+          三元组
+*/
+
+#include"stdio.h"
+#define MAX 100
+
+typedef struct {
+    int i, j, e; //row, column, value
+}TR;
+
+typedef struct {
+    TR data[MAX];
+    int mu,nu,tu; //row,column,non zero count
+}TS;
+
+int main()
+{
+    TS M, N, Q;
+    int arow,ccol, ctemp[10000],k=1;
+
+
+	//initialize empty matrix
+    for (int i = 0; i < MAX; i++) {
+        M.data[i].e = 0;
+        N.data[i].e = 0;
+        Q.data[i].e = 0;
+    }
+
+    for (int i = 0; i < 10000; i++)ctemp[i] = 0;
+    
+    scanf("%d%d%d", &M.mu,&M.nu, &M.tu);
+    for (int i = 1; i <= M.tu; i++) {
+        scanf("%d%d%d", &M.data[i].i, &M.data[i].j, &M.data[i].e);
+    }
+
+    scanf("%d%d%d",&N.mu, &N.nu, &N.tu);
+    for (int i = 1; i <= N.tu; i++) {
+        scanf("%d%d%d", &N.data[i].i, &N.data[i].j, &N.data[i].e);
+    }
+    
+  
+    arow = 0;
+    
+	//only count those with no zero, others is automatically zero
+	//M row[i] * N column[i]
+
+    for (int p = 1; p <= M.tu; p++) {
+        
+        if (arow!= M.data[p].i) {
+            for (int q = 1; q <= N.nu; q++) {
+                if (ctemp[q] != 0) {
+                    Q.data[k].i = arow;
+                    Q.data[k].j = q;
+                    Q.data[k].e = ctemp[q];
+                    k++;
+                }
+            }
+            arow = M.data[p].i;
+            for (int i = 0; i < 10000; i++)ctemp[i] = 0;
+        }
+        
+        for (int q = 1; q <= N.tu; q++) {
+            if (N.data[q].i == M.data[p].j) {
+                ccol = N.data[q].j;
+                ctemp[ccol] += M.data[p].e * N.data[q].e;
+            }
+        }
+        
+    }
+    for (int q = 1; q <= N.nu; q++) {
+        if (ctemp[q] != 0) {
+            Q.data[k].i = arow;
+            Q.data[k].j = q;
+            Q.data[k].e = ctemp[q];
+            k++;
+        }
+    }
+    //print
+    Q.mu = M.mu;
+    Q.nu = N.nu;
+    Q.tu = k - 1;
+    printf("%d\n%d\n%d\n", Q.mu, Q.nu,Q.tu);
+    for (int p = 1; p <= Q.tu; p++)printf("%d,%d,%d\n", Q.data[p].i, Q.data[p].j, Q.data[p].e);
+    return 0;
+}
