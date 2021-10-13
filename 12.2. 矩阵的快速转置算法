@@ -1,0 +1,68 @@
+#include "stdio.h"
+#include "stdlib.h"
+
+typedef struct
+{
+	int i,j,data;
+}Triple;
+
+int main()
+{
+	int row,col,n,i,j,e;
+	
+	scanf("%d %d %d",&row,&col,&n);
+	Triple sparseMatrix[n+1];
+	
+	//initialize
+	for(int i=1;i<=n;i++)
+	{
+		scanf("%d %d %d",&i,&j,&e);
+		sparseMatrix[i].i=i;
+		sparseMatrix[i].j=j;
+		sparseMatrix[i].data=e;
+	}
+	
+	Triple transposeMatrix[n+1];
+	
+	int num[col+1];
+	for(int i=1;i<=col;i++)
+	{
+		num[i]=0;
+	}
+	for(int i=1;i<=n;i++)
+	{
+		num[sparseMatrix[i].j]++; //adding how many number in each column of original
+	}
+	
+	int cpos[col+1];
+	cpos[1]=1;
+	for(int i=2;i<=col;i++)
+	{
+		cpos[i]=cpos[i-1]+num[i-1];
+	}
+	
+	printf("num:");
+	for(int i=1;i<=col;i++)
+		printf("%d,",num[i]);
+	printf("\n");
+	printf("cpot:");
+	for(int i=1;i<=col;i++)
+		printf("%d,",cpos[i]);
+	printf("\n");
+	
+	int count=1,flag;
+	for(int i=1;i<=n;i++)
+	{
+		//initialize transpose matrix
+		flag=sparseMatrix[i].j;
+		transposeMatrix[cpos[flag]].i=sparseMatrix[i].j;
+		transposeMatrix[cpos[flag]].j=sparseMatrix[i].i;
+		transposeMatrix[cpos[flag]].data=sparseMatrix[i].data;
+		cpos[flag]++;
+	}
+	
+	for(int i=1;i<=n;i++)
+	{
+		printf("%d,%d,%d\n",transposeMatrix[i].i,transposeMatrix[i].j,transposeMatrix[i].data);
+	}
+}
