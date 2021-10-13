@@ -107,3 +107,4 @@ int main()
     for (int p = 1; p <= Q.tu; p++)printf("%d,%d,%d\n", Q.data[p].i, Q.data[p].j, Q.data[p].e);
     return 0;
 }
+
