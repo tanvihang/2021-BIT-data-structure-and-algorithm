@@ -1,0 +1,444 @@
+/*
+编写程序实现二叉树的如下操作：
+1) 建立二叉链表
+2) 二叉树的先序、中序、后序遍历
+3) 求二叉树的叶子结点个数
+4) 将二叉树中所有结点的左、右子树相互交换
+
+输入：
+　　扩展二叉树先序序列：ab#d##ce###。其中#代表空指针。
+
+输出：
+　　二叉树的凹入表示
+　　二叉树的先序序列、中序序列、后序序列
+　　二叉树叶子结点个数
+　　左、右子树相互交换后的二叉树的凹入表示
+　　左、右子树相互交换后的二叉树的先序序列、中序序列、后序序列。
+
+说明：
+　　在输出凹入表示的二叉树时，先输出根结点，然后依次输出左右子树，上下层结点之间相隔 3 个空格。
+*/
+
+#include<stdio.h>
+#include<stdlib.h>
+#define N 20
+#define SIZE 100
+#define MORE 10
+
+typedef struct BiTNode{
+	char data; 
+	struct BiTNode *lchild, *rchild; 
+}BiTNode, *BiTree;
+
+
+typedef struct{
+	BiTree *base;
+	int top;
+	int stacksize;
+}SqStack;
+
+
+typedef struct {
+	BiTree *base; 
+	int front;
+	int rear;
+} SqQueue; 
+
+void InitStack(SqStack &S){
+	S.base=(BiTree*)malloc(SIZE*sizeof(BiTree));
+	if(!S.base) return ;
+	S.top=0;
+	S.stacksize=SIZE;
+}
+
+int StackEmpty(SqStack &S){
+	if(S.top==0) return 1;
+	else return 0;
+} 
+
+void Push(SqStack &S,BiTree e){
+	if(S.top>=S.stacksize){
+		S.base=(BiTree *)realloc(S.base,(S.stacksize+MORE)*sizeof(BiTree));
+		if(!S.base) exit(0);
+		S.stacksize+=MORE;
+		}
+	S.base[S.top++]=e;
+}
+
+void Pop(SqStack &S,BiTree &e){
+	if(S.top==0) exit(0);
+		else
+		e=S.base[--S.top]; 
+}
+
+int GetTop(SqStack &S,BiTree &e){
+if(S.top==0)  
+return 0;
+else
+e=S.base[S.top-1];
+return 1;
+} 
+
+void InitQueue(SqQueue &Q){
+Q.base=(BiTree *)malloc(SIZE*sizeof(BiTree));
+if (!Q.base) exit(0);
+else
+Q.front=Q.rear=0;
+}
+
+int QueueEmpty(SqQueue Q){
+if (Q.rear==Q.front) return 1;
+else
+return 0;
+}
+
+void EnQueue(SqQueue &Q,BiTree e){
+if ((Q.rear+1)%SIZE==Q.front) 
+exit(0);
+else
+Q.base[Q.rear]=e;
+Q.rear=(Q.rear+1)%SIZE;
+}
+
+void DeQueue(SqQueue &Q,BiTree &e){
+if ((Q.rear+1)%SIZE==Q.front) 
+exit(0);
+else
+e=Q.base[Q.front];
+Q.front=(Q.front+1)%SIZE;
+}
+
+void visit(char data){
+printf("%c",data);
+}
+
+//inorder create tree
+void CreatBiTree(BiTree &bt){
+char ch;
+ch=getchar();
+if(ch=='#')
+	bt=NULL;
+else{
+	bt=(BiTree)malloc(sizeof(BiTNode));
+	bt->data=ch;
+	CreatBiTree(bt->lchild);
+	CreatBiTree(bt->rchild);
+} 
+} 
+
+void PreOrderTraverse(BiTree bt){
+
+if(bt){
+visit(bt->data);
+PreOrderTraverse(bt->lchild);
+PreOrderTraverse(bt->rchild);
+} 
+
+} 
+
+void InOrderTraverse(BiTree bt){
+
+if(bt){
+InOrderTraverse(bt->lchild);
+
+visit(bt->data);
+
+InOrderTraverse(bt->rchild);
+
+}
+
+}
+
+void PostOrderTraverse(BiTree bt){
+
+if(bt){
+PostOrderTraverse(bt->lchild);
+
+PostOrderTraverse(bt->rchild);
+
+visit(bt->data);
+
+}
+
+}
+
+//print with tabs, to easy recognize the depth
+void print(BiTree bt,int n)
+{
+	if(bt!= NULL)
+	{
+		int i=1;
+		while(i<=n)
+		{
+			printf("    ");
+			i++;
+		}
+		visit(bt->data);
+		printf("\n");
+		
+		n++;
+		print(bt->lchild, n);
+		print(bt->rchild, n);
+	}
+}
+
+//traverse using stacks
+/* 
+void PreOrderTraverse2(BiTree bt){
+
+  BiTree p;
+
+  SqStack S;
+
+if(bt){ 
+
+InitStack(S); 
+
+Push(S,bt); 
+
+while(!StackEmpty(S)){ 
+
+while(GetTop(S,p)&&p){ 
+
+visit(p->data); 
+
+Push(S,p->lchild); 
+
+} 
+
+Pop(S,p); 
+
+if(!StackEmpty(S)){ 
+
+Pop(S,p); 
+
+Push(S,p->rchild); 
+
+}
+
+}
+
+}
+
+}
+*/
+
+/*
+void InOrderTraverse2(BiTree bt){
+//ÖÐÐò±éÀú
+
+BiTree p;
+
+SqStack S;
+
+if(bt){ 
+
+InitStack(S); 
+
+Push(S, bt); 
+
+while(!StackEmpty(S)){ 
+
+while(GetTop(S,p)&&p){
+Push(S, p->lchild); 
+
+Pop(S, p); 
+
+} 
+
+if(!StackEmpty(S)){ 
+
+Pop(S,p); 
+
+visit(p->data); 
+
+Push(S, p->rchild); 
+
+}
+
+}
+
+}
+
+}
+*/
+/*
+void PostOrderTraverse2(BiTree bt){
+//ºóÐò±éÀú
+
+BiTree p,q;
+
+SqStack S;
+
+InitStack(S); 
+
+Push(S,bt); 
+
+while(!StackEmpty(S)){ 
+
+while(GetTop(S,p)&&p){
+Push(S,p->lchild); 
+
+Pop(S,p); 
+
+} 
+
+if(!StackEmpty(S)){ 
+
+GetTop(S,p); 
+
+if(p->rchild)
+
+Push(S,p->rchild);
+
+else{ 
+
+Pop(S,p); 
+
+visit(p->data);
+
+while(!StackEmpty(S)&&GetTop(S,q)&&q->rchild==p){ 
+
+Pop(S,p); 
+
+visit(p->data);
+
+}
+
+if(!StackEmpty(S)){ 
+
+GetTop(S,p); Push(S,p->rchild); 
+
+}
+
+            }
+
+}
+
+}
+
+}
+*/
+ 
+//not sure yet
+void LevelOrderTraverse(BiTree bt){
+
+BiTree p;
+
+SqQueue Q;
+
+if(bt){
+InitQueue(Q); 
+
+EnQueue(Q,bt);
+
+while(!QueueEmpty(Q)){
+DeQueue(Q,p);
+
+visit(bt->data);
+
+if(p->lchild){
+EnQueue(Q,p->lchild);
+
+}
+
+if(p->rchild){
+EnQueue(Q,p->rchild);
+
+}
+
+} 
+
+}
+
+}
+
+
+int NodeNum(BiTree bt){
+int count=0;
+BiTree p;
+SqQueue Q;
+
+if(bt){
+	InitQueue(Q); 
+	EnQueue(Q,bt);
+	while(!QueueEmpty(Q)){
+		DeQueue(Q,p);
+		count++;
+		if(p->lchild){
+			EnQueue(Q,p->lchild);
+					}
+		if(p->rchild){
+			EnQueue(Q,p->rchild);
+						}
+	} 
+}
+return count;
+}
+
+int LeaNum(BiTree bt){
+	if(!bt){
+			return 0;
+			}			 
+	else if(!(bt->lchild)&&!(bt->rchild)){
+		return 1;
+			}	
+	else{
+		return (LeaNum(bt->lchild)+LeaNum(bt->rchild));
+		}
+} 
+
+void Exchange(BiTree &bt)
+{
+	BiTree temp;
+	if(bt)
+	{
+		temp = bt->lchild;
+		bt->lchild=bt->rchild;
+		bt->rchild=temp;
+		Exchange(bt->lchild);
+		Exchange(bt->rchild);
+	}
+}
+
+
+int main(){
+int a,b;
+
+BiTree bt;
+CreatBiTree(bt);
+
+
+printf("BiTree\n");
+print(bt,0);
+printf("pre_sequence  : ");
+PreOrderTraverse(bt);
+printf("\n");
+printf("in_sequence   : ");
+InOrderTraverse(bt);
+printf("\n");
+printf("post_sequence : ");
+PostOrderTraverse(bt);
+printf("\n");
+a=NodeNum(bt);
+b=LeaNum(bt);
+printf("Number of leaf: %d\n",b);
+
+Exchange(bt);
+printf("BiTree swapped\n");
+print(bt,0);
+printf("pre_sequence  : ");
+PreOrderTraverse(bt);
+printf("\n");
+printf("in_sequence   : ");
+InOrderTraverse(bt);
+printf("\n");
+printf("post_sequence : ");
+PostOrderTraverse(bt);
+printf("\n");
+
+
+
+return 0;
+
+}
