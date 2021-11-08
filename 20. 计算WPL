@@ -1,0 +1,67 @@
+/*
+Huffman编码是通信系统中常用的一种不等长编码，它的特点是：能够使编码之后的电文长度最短。
+
+输入：
+    第一行为要编码的符号数量n
+    第二行～第n+1行为每个符号出现的频率
+
+输出：
+    对应哈夫曼树的带权路径长度WPL
+*/
+
+#include "stdio.h"
+#include "stdlib.h"
+#define INF 0x3f3f3f
+
+int last, wpl, len;
+int data[1000];
+
+void findmin()
+{
+	int i,x1,x2;
+	x1=x2=last;  //first time last=0
+	int min1 = data[last];
+	int min2 = INF;
+	for(i = last; i<len; i++)
+	{
+		if(data[i]<min1)
+		{
+			min1 = data[i];
+			x1=i;
+		}
+	}
+		for(i = last; i<len; i++)
+	{
+		if(data[i]<min2 && i!= x1)
+		{
+			min2 = data[i];
+			x2=i;
+		}
+	}
+	wpl += min1 + min2;
+	data[x2] = min1 + min2;
+	data[x1] = data[last];
+	data[last]=0;
+	last++;	
+}
+
+int main()
+{
+	int i,n;
+	scanf("%d",&n);
+	if(n==1){
+		printf("WPL=1\n");
+		return 0;
+	} 
+	
+	for(i=0;i<n;i++)
+		scanf("%d",&data[i]);
+		
+	len = n;
+	
+	while(n-- > 1)
+		findmin();
+		
+	printf("WPL=%d\n",wpl);
+	return 0;
+}
