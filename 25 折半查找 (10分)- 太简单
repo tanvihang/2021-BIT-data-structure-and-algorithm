@@ -1,0 +1,79 @@
+#include "stdio.h"
+
+int data[1024][2];
+void swap(int a, int b)
+{
+	int i, temp;
+	for (i=0;i<2;i++)
+	{
+		temp = data[a][i];
+		data[a][i]=data[b][i];
+		data[b][i]=temp;
+	}
+}
+void qsort(int begin, int end)
+{
+	if(begin < end)
+	{
+		int i,j;
+		i=begin+1;
+		j=end;
+		while(i<j)
+		{
+			if(data[i][0]>data[begin][0])
+				swap(i,j--);
+			else
+				i++;
+		}
+		if(data[i][0]>data[begin][0])
+			i--;
+		swap(begin,i);
+		qsort(begin,i);
+		qsort(j,end);
+	}
+}
+
+int main()
+{
+	int i,n,testnum,compare[3]={0}, flag=-1, temp;
+	scanf("%d",&n);
+	compare[1]=n/2;
+	compare[2]=n-1;
+	for(i=0;i<n;i++)
+		scanf("%d%d",&data[i][0],&data[i][1]);
+	qsort(0,n-1);
+	for(i=0;i<n;i++)
+		printf("(%d %d)",data[i][0],data[i][1]);
+	printf("\n");
+	scanf("%d",&testnum);
+	while(1)
+	{
+		if(testnum < data[compare[0]][0]||testnum>data[compare[2]][0])
+			break;
+		if(testnum == data[compare[1]][0])
+		{
+			flag = compare[1];
+			break;
+		}
+		else if (testnum < data[compare[1]][0])
+		{
+			compare[2]=compare[1];
+			compare[1]=(compare[0]+compare[1])/2;
+		}
+		else
+		{
+			compare[0]=compare[1];
+			temp = (compare[1]+compare[2])/2;
+			if(temp==compare[1])
+				break;
+			compare[1]=temp;
+		}
+	}	
+	if(flag== -1)
+		printf("error\n");
+	else
+		printf("(%d %d)\n",data[flag][0],data[flag][1]);
+	return 0;
+		
+	
+}
