@@ -1,0 +1,54 @@
+用堆排序算法按关键字递减的顺序排序。
+
+输入：待排序记录数（整数）和待排序记录（整数序列）；
+
+输出：建堆结果和建堆后第一、第二次筛选结果。（注：待排序记录数大于等于3）
+
+
+#include "stdio.h"
+#include "stdlib.h"
+
+int r[100];
+int length;
+
+void HeapAdjust(int s, int m)
+{
+	//s= starting, m=length
+	int rc = r[s]; //eg first time s=length/2
+	for(int j=2*s; j<=m; j*=2)
+	{
+		if(j<m && r[j]<r[j+1])
+			++j;
+		if(!(rc<r[j]))
+			break;
+		r[s]=r[j];
+		s=j;
+	}
+	r[s]=rc;
+}
+
+void HeapSort()
+{
+	int i;
+	for(i=length/2; i>0; --i)
+	{
+		HeapAdjust(i,length); // adjust from bottom
+	}
+	for(i=1;i<=length;i++)
+		printf("%d ",r[i]);
+	printf("\n");
+	r[1]=r[length];
+	length--;
+}
+
+int main()
+{
+	scanf("%d",&length);
+	for(int i=1;i<=length;i++)
+	{
+		scanf("%d",&r[i]); //save it into array
+	}
+	HeapSort();
+	HeapSort();
+	HeapSort(); //sort 3 times
+}
