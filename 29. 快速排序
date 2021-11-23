@@ -1,0 +1,134 @@
+要求根据给定输入，按照课堂给定的快速排序算法进行排序，输出排序结果和median3的返回值。
+
+ 注：1,cutoff值为5，不足cutoff使用插入排序。
+
+        2,输入、输出格式参见测试用例0。
+
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#include "math.h"
+#include "iostream"
+
+#define EQ(a,b) ((a)==(b))
+#define LT(a,b) ((a)<(b))
+#define LQ(a,b) ((a)<=(b))
+#define MAXSIZE 1000
+
+int a[MAXSIZE], y=0;
+
+void insort(int*,int,int);
+void qsort(int*,int,int);
+void Median3(int*,int,int);
+
+
+int main()
+{
+	int num[MAXSIZE];
+	int i=1, j=1, k=0;
+	
+	while((scanf("%d",&num[i])==1))
+	{
+		getchar();
+		i++;
+	}
+	if(i>6)
+		qsort(num,1,i-1); //quick sort
+	else
+		insort(num,1,i-1);	//insert sorting
+	printf("After Sorting:\n");
+	while(j<i)
+	{
+		printf("%d ",num[j++]);
+	}
+	printf("\n");
+	printf("Median3 Value:\n");
+	if(y>0)
+	{
+		while(k<y)
+			printf("%d ",a[k++]);
+		printf("\n");
+	}
+	else
+		printf("none\n");
+}
+
+void swap(int &p, int&q)
+{
+	int tmp;
+	tmp = p;
+	p=q;
+	q=tmp; 
+	
+	return;
+}
+
+void Median3(int map[],int p, int q)
+{
+	int mid = (p+q)/2;
+	if(map[p]>map[mid])
+	{
+		swap(map[p],map[mid]);
+	}
+	if(map[p]>map[q])
+	{
+		swap(map[p],map[q]);
+	}
+	if(map[mid]>map[q])
+	{
+		swap(map[mid],map[q]);
+	}
+	swap(map[mid],map[q-1]);
+	a[y++]=map[q-1];
+}
+
+void insort(int num[],int i, int j)
+{
+	int k;
+	for(i=2;i<=j;i++)
+	{
+		num[0]=num[i];
+		k=i-1;
+		while(num[0]<num[k])
+		{
+			num[k+1]=num[k];
+			k=k-1;
+		}
+		num[k+1]=num[0];
+	}
+	
+}
+
+void qsort(int num[],int low, int high)
+{
+	int i,j,tmp;
+	Median3(num, low, high);
+	i=low;
+	j=high-1;
+	int x=num[j];
+	while(1)
+	{
+		while(num[++i]<x)
+		{	} //move i(low), until number bigger than x
+		while(num[--j]>x)
+		{	} //move j(high), until number smaller than x
+		if(i<j)
+		{
+			tmp=num[i];
+			num[i]=num[j];
+			num[j]=tmp;
+		}
+		else break;
+	}
+	num[high-1]=num[i];
+	num[i]=x;
+	if(low+5<=i)
+		qsort(num,low,i-1);
+	else
+		insort(num,low,i-1);
+	
+	if(i+5<=high)
+		qsort(num,i+1,high);
+	else
+		insort(num,i+1,high);
+}
